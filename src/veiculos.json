@@ -1,5 +1,47 @@
 {
     "veiculos": [
+        
+        {
+            "TipoVeiculo" : 1,
+            "Valor":"R$ 191.645,00",
+            "Marca":"VW - VolksWagen",
+            "Modelo":"AMAROK High.CD 2.0 16V TDI 4x4 Dies. Aut",
+            "AnoModelo":2022,
+            "Combustivel":"Diesel",
+            "MesReferencia":"julho de 2024",
+            "SiglaCombustivel":"D"
+        },
+        {
+            "TipoVeiculo":2,
+            "Valor":"R$ 1.743,00",
+            "Marca":"ADLY",
+            "Modelo":"JAGUAR JT 100",
+            "AnoModelo":1998,
+            "Combustivel":"Gasolina",
+            "MesReferencia":"julho de 2024",
+            "SiglaCombustivel":"G"
+        },
+        {
+            "TipoVeiculo" : 1,
+            "Valor":"R$ 191.645,00",
+            "Marca":"VW - VolksWagen",
+            "Modelo":"AMAROK High.CD 2.0 16V TDI 4x4 Dies. Aut",
+            "AnoModelo":2022,
+            "Combustivel":"Diesel",
+            "MesReferencia":"julho de 2024",
+            "SiglaCombustivel":"D"
+        },
+        {
+            "TipoVeiculo":2,
+            "Valor":"R$ 1.743,00",
+            "Marca":"ADLY",
+            "Modelo":"JAGUAR JT 100",
+            "AnoModelo":1998,
+            "Combustivel":"Gasolina",
+            "MesReferencia":"julho de 2024",
+            "SiglaCombustivel":"G"
+        },
+        
         {
             "TipoVeiculo" : 1,
             "Valor":"R$ 191.645,00",

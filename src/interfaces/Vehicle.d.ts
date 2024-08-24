@@ -1,0 +1,1 @@
+type Vehicle = 'carros' | 'motos' | 'caminhoes'
