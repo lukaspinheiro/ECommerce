@@ -1,7 +1,6 @@
 'use client'
 
 import { Card } from "@/components/Card";
-import veiculos from "@/veiculos.json"
 import { CrudApi } from "@/api/CrudApi"
 import { useContext, useEffect, useRef, useState } from "react"
 import Navbar from "@/components/Navbar";
@@ -15,9 +14,10 @@ export default function Catalogo() {
 
   const fetchVehicle = async () => {
     try {
-        const res = await CrudApi.get(`vehicle`)
-        console.log(""+res.data);
-        setVehicles(res.data)   
+      console.log("Entrou no fetchVehicle linha 18")
+      const res = await CrudApi.get(`vehicle`)
+      console.log(""+res.data);
+      setVehicles(res.data)   
     }
     catch (err) {
         console.log(err);

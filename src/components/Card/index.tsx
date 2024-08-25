@@ -21,7 +21,6 @@ export const Card = ({ data, setUrl }: cardProps) => {
         setUrl(data.vehicle_type, data.id_brand, data.id_model, data.year)
         router.push(`Editar`)
     }
-
     return (
         <div className="grid justify-items-center items-center lg:flex-row w-[80%] md:w-[80%] lg:w-[80%]  bg-white p-8 rounded shadow-xl">
             <img src={data.vehicle_type === 'carros' ? '../images/iconCar.png' : data.vehicle_type === 'motos' ?  '../images/iconMotorcycle.png' : '../images/iconTruck.png'} className="min-w-44 lg:min-w-[1px] flex-2 w-8 md:w-16 lg:w-32 mr-5" alt="" />

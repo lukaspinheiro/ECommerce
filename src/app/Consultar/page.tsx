@@ -12,8 +12,7 @@ export default function Consultar() {
     const [models, setModels] = useState<any[]>([])
     const [year, setYear] = useState<any[]>([])
     const [codBrand, setCodBrand] = useState<string>()
-    const [codModel, setCodModel] = useState<number>(0)
-    const [codYear, setCodYear] = useState<string>("")
+    const [codModel, setCodModel] = useState<number>()
     const [vehicle, setVehicle] = useState<string>("")
 
     const [fuel, setFuel] = useState<string>("")
@@ -32,20 +31,28 @@ export default function Consultar() {
         }
     }
 
-    const onChangeRadio = (id:string)=>{
-        setVehicle(id)
-    }
-    const LiOnclick = (id: string) => {
-        setVehicle(id);
-    };
-
-    //Mudança do campo Marca
-    const onChangeBrand = async (codigo: any) => {
-        //limpa os campos
+    //Limpa os Inputs
+    function clearInputs(){
         setFuel("")
         setCodRef("")
         setcodFipe("")
         setFipePrice("")
+    }
+
+    //Mudança dos RadioButtons
+    const onChangeRadio = (id:string)=>{
+        setVehicle(id)
+        clearInputs()
+        setBrand(["Selecione uma Opção"])
+        setModels(["Selecione uma Opção"])
+        setYear(["Selecione uma Opção"])
+
+    }
+
+    //Mudança do campo Marca
+    const onChangeBrand = async (codigo: any) => {
+        //limpa os campos
+        clearInputs()
         setModels(["Selecione uma Opção"])
         setYear(["Selecione uma Opção"])
         
@@ -75,10 +82,7 @@ export default function Consultar() {
     //Mudança do campo Modelo
     const onChangeModel = async (codigo: any) => {
         //limpa os campos
-        setFuel("")
-        setCodRef("")
-        setcodFipe("")
-        setFipePrice("")
+        clearInputs()
         setYear(["Selecione uma Opção"])
         
         try{
@@ -105,10 +109,7 @@ export default function Consultar() {
     //Mudança do campo Ano
     const onChangeYear = async (codigo: any)  =>{
         //limpa os campos
-        setFuel("")
-        setCodRef("")
-        setcodFipe("")
-        setFipePrice("")
+        clearInputs()
         try{
             //verifica se Ano está vazio (Evita requisição vazia)
             if (!codigo.includes("Selecione uma Opção")){
@@ -122,7 +123,6 @@ export default function Consultar() {
                 setCodRef(res.data.MesReferencia)
                 setFipePrice(res.data.Valor)
                 setcodFipe(res.data.CodigoFipe)
-                setCodYear(codigo)
             }
 
         }
@@ -143,21 +143,21 @@ export default function Consultar() {
             <div className="flex flex-col bg-white p-8 rounded-lg">
                 <div className="flex justify-around gap-8 bg-white p-8 rounded-lg">
                     <ul className="flex flex-row gap-x-9 bg-white rounded-lg">
-                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2" onClick={() => LiOnclick('carros')}>
+                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2" onClick={() => onChangeRadio('carros')}>
                             <input type="radio" name="radioVehicle" id="carros" onChange={(e)=>onChangeRadio("carros")} checked={vehicle === 'carros'}/>
                             <label htmlFor="radio-car" className="shadow-md hover:shadow-lg">
                                 <img src="../images/iconCar.png" className="w-8 md:w-16 lg:w-32" alt="" />
                             </label>
                         </li>
 
-                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2" onClick={() => LiOnclick('motos')}>
+                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2" onClick={() => onChangeRadio('motos')}>
                             <input type="radio" name="radioVehicle" id="motos" onChange={(e)=>onChangeRadio("motos")} checked={vehicle === 'motos'}/>
                             <label htmlFor="radio-motorcycle" className="shadow-md hover:shadow-lg">
                                 <img src="../images/iconMotorcycle.png" className="w-8 md:w-16 lg:w-32" alt="" />
                             </label>
                         </li>
 
-                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2" onClick={() => LiOnclick('caminhoes')}>
+                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2" onClick={() => onChangeRadio('caminhoes')}>
                             <input type="radio" name="radioVehicle" id="caminhoes" onChange={(e)=>onChangeRadio("caminhoes")} checked={vehicle === 'caminhoes'}/>
                             <label htmlFor="radio-truck" className="shadow-md hover:shadow-lg">
                                 <img src="../images/iconTruck.png" className="w-8 md:w-16 lg:w-32" alt="" />

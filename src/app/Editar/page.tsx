@@ -9,14 +9,14 @@ import { useContext, useEffect, useState } from "react"
 
 interface IPost {
     vehicle_type: string
-    id_model: number
+    id_model: string
     model: string
     id_brand: string
     brand: string
     year: string
-    price: number
+    price: string
     notes: string
-    km: number
+    km: string
     color: string
 }
 
@@ -28,16 +28,17 @@ export default function Editar() {
     const [models, setModels] = useState<any[]>([])
     const [year, setYear] = useState<any[]>([])
     const [codBrand, setCodBrand] = useState<string>()
-    const [codModel, setCodModel] = useState<number>()
+    const [codModel, setCodModel] = useState<string>()
     const [codYear, setCodYear] = useState<number>()
     const [vehicle, setVehicle] = useState<string>("")
+
     const [fuel, setFuel] = useState<string>("")
     const [codRef, setCodRef] = useState<string>("")
     const [codFipe, setcodFipe] = useState<string>("")
     const [color, setColor] = useState<string>("")
-    const [km, setKm] = useState<number>()
-    const [FipePrice, setFipePrice] = useState<any[]>([])
-    const [price, setPrice] = useState<number>()
+    const [km, setKm] = useState<string>("")
+    const [FipePrice, setFipePrice] = useState<string>("")
+    const [price, setPrice] = useState<string>("")
     const [notes, setNotes] = useState<string>("")
 
 
@@ -49,14 +50,8 @@ export default function Editar() {
     const [unlockInput, setUnlockInput] = useState(false);
     const [textEditButton, setTextEditButton] = useState("Editar");
 
-    const editButton = () => {
-        if (statusEditButton == 0) {
-            setDeleteButtonVisible(true)
-            setUnlockInput(true)
-            setTextEditButton("Salvar")
-            setStatusEditButton(1)
-            console.log(statusEditButton)
-        }
+    //troca entre Editar e Cadastro
+    const editButton = async() => {
         if (statusEditButton == 1) {
             const obj: IPost = {
                 vehicle_type: vehicle,
@@ -72,26 +67,49 @@ export default function Editar() {
             }
             console.log("esses são os modelos "+models)
             console.log(obj)
-            Post(obj)
+            await Post(obj)
             console.log(statusEditButton)
-
+    
+            return
         }
+        if (statusEditButton == 0) {
+            setDeleteButtonVisible(true)
+            setUnlockInput(true)
+            setTextEditButton("Salvar")
+            setStatusEditButton(1)
+            console.log(statusEditButton)
+            return
+        }
+        console.log("ESSE É O CODMODEL: "+codModel)
     }
 
-    useEffect(() => {
-    }, [])
+    //Limpa os Inputs
+    function clearInputs(){
+        setFuel("")
+        setCodRef("")
+        setcodFipe("")
+        setFipePrice("")
+        setNotes("")
+        setKm("")
+        setColor("")
+        setPrice("")
+    }
 
-    const onChangeRadio = (id: string) => {
+    //Mudança dos RadioButtons
+    const onChangeRadio = (id:string)=>{
         setVehicle(id)
+        clearInputs()
+        setBrand(["Selecione uma Opção"])
+        setModels(["Selecione uma Opção"])
+        setYear(["Selecione uma Opção"])
+        clearInputs()
     }
-    const LiOnclick = (id: string) => {
-        setVehicle(id);
-    };
 
     async function Post(obj: IPost) {
         try {
-            const res = await CrudApi.post('/vehicle', obj)
-            console.log(res);
+            console.log("Entrou aquiiiiii!!!!!!!!!")
+            const res = await CrudApi.post('vehicle', obj)
+            
         }
         catch (err) {
             console.log(err);
@@ -126,41 +144,85 @@ export default function Editar() {
     }
 
 
+    //Mudança do campo Marca
     const onChangeBrand = async (codigo: any) => {
+        //limpa os campos
+        clearInputs()
+        setModels(["Selecione uma Opção"])
+        setYear(["Selecione uma Opção"])
+        
+        
         try {
-            const res = await FipeApi.get(`${vehicle}/marcas/${codigo}/modelos`)
-            setModels(res.data.modelos)
-            //console.log(`esse é o modelo ${stringModels}`)
-            setCodBrand(codigo)
+            //verifica se Marca está vazia (Evita requisição vazia)
+            if (!codigo.includes("Selecione uma Opção")){
+                console.log("não está vazio")
+                
+                //requisição
+                const res = await FipeApi.get(`${vehicle}/marcas/${codigo}/modelos`)
+                setModels(res.data.modelos)
+                setCodBrand(codigo)
+            }
+            else{
+                //evitou a requisição vazia
+                //setou Modelo e Ano em 0
+                setModels([0])
+                setYear([0])
+            }
         }
         catch (err) {
             console.log(err);
         }
     }
 
+    //Mudança do campo Modelo
     const onChangeModel = async (codigo: any) => {
-        try {
-            const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codigo}/anos`)
-            setYear(res.data)
-            setCodModel(codigo)
+        //limpa os campos
+        clearInputs()
+        setYear(["Selecione uma Opção"])
+        
+        try{
+            //verifica se Modelo está vazio (Evita requisição vazia)
+            if (!codigo.includes("Selecione uma Opção")){
+                console.log("não está vazio")
+    
+                //requisição
+                const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codigo}/anos`)
+                setCodModel(codigo)
+                setYear(res.data)
+            }
+            else{
+                //evitou a requisição vazia
+                //setou Ano em 0
+                setYear(["Selecione uma Opção"])
+            }
         }
-        catch (err) {
+        catch(err){
             console.log(err);
         }
     }
 
-    const onChangeYear = async (codigo: any) => {
-        try {
-            const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codModel}/anos/${codigo}`)
-            setCodYear(codigo)
-            setFuel(res.data.Combustivel)
-            setCodRef(res.data.MesReferencia)
-            setFipePrice(res.data.Valor)
-            setcodFipe(res.data.CodigoFipe)
-            console.log(res)
+    //Mudança do campo Ano
+    const onChangeYear = async (codigo: any)  =>{
+        //limpa os campos
+        clearInputs
+        try{
+            //verifica se Ano está vazio (Evita requisição vazia)
+            if (!codigo.includes("Selecione uma Opção")){
+                console.log("não está vazio")
+               
+                //requisição
+                const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codModel}/anos/${codigo}`)
+
+                console.log(res.data)
+                setFuel(res.data.Combustivel)
+                setCodRef(res.data.MesReferencia)
+                setFipePrice(res.data.Valor)
+                setcodFipe(res.data.CodigoFipe)
+                setCodYear(codigo)
+            }
 
         }
-        catch (err) {
+        catch(err){
             console.log(err);
         }
     }
@@ -170,7 +232,7 @@ export default function Editar() {
             //fetch()
             fetchBrand()
         }
-    }, [vehicle])
+    }, [vehicle])   
 
     return (
         <>
@@ -183,7 +245,7 @@ export default function Editar() {
                             <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"  
                                 onClick={() => {
                                     if (unlockInput){
-                                        LiOnclick("carros")
+                                        onChangeRadio("carros")
                                     }
                                 }
                             }>
@@ -196,7 +258,7 @@ export default function Editar() {
                             <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"  
                                 onClick={() => {
                                     if (unlockInput){
-                                        LiOnclick("motos")
+                                        onChangeRadio("motos")
                                     }
                                 }
                             }>
@@ -209,7 +271,7 @@ export default function Editar() {
                             <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"  
                                 onClick={() => {
                                     if (unlockInput){
-                                        LiOnclick("caminhoes")
+                                        onChangeRadio("caminhoes")
                                     }
                                 }
                             }>
@@ -238,7 +300,7 @@ export default function Editar() {
                             <input type="text" disabled value={fuel} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputFuel" />
 
                             <label htmlFor="inputComments">Observações</label>
-                            <input type="text" disabled={!unlockInput} onChange={(e) => setNotes(e.target.value)} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputComments" />
+                            <input type="text" disabled={!unlockInput} onChange={(e) => setNotes(e.target.value)} value={notes} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputComments" />
 
                             <button hidden={!deleteButtonVisible} className="p-2 font-bold text-lg text-white hover:shadow-lg shadow-md hover:shadow-lg rounded-lg border border-red-600 bg-red-600">Excluir</button>
                         </div>
@@ -261,7 +323,7 @@ export default function Editar() {
                                     <input type="text" disabled value={codRef} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputFipeRef" />
 
                                     <label htmlFor="inputKm">Quilometragem</label>
-                                    <input disabled={!unlockInput} type="number" onChange={(e) => setKm(Number(e.target.value))} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg" id="inputKm" />
+                                    <input disabled={!unlockInput} type="text" onChange={(e) => setKm(e.target.value)} value={km} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg" id="inputKm" />
                                 </div>
 
                                 <div className="flex flex-col gap-2 bg-white">
@@ -269,7 +331,7 @@ export default function Editar() {
                                     <input type="text" disabled value={codFipe} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputFipeCod" />
 
                                     <label htmlFor="inputColor">Cor</label>
-                                    <input disabled={!unlockInput} type="text" onChange={(e) => setColor(e.target.value)} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputColor" />
+                                    <input disabled={!unlockInput} type="text" onChange={(e) => setColor(e.target.value)} value={color} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputColor" />
 
                                     <button className="py-2 font-bold text-lg text-neutral-600 hover:shadow-lg shadow-md hover:shadow-lg rounded-lg border border-neutral-600 bg-white">Voltar</button>
                                 </div>
@@ -293,7 +355,7 @@ export default function Editar() {
                             <input type="text" disabled value={FipePrice} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputPriceFipe" />
 
                             <label htmlFor="inputPrice">Valor de Venda</label>
-                            <input disabled={!unlockInput} type="number" onChange={(e) => setPrice(Number(e.target.value))} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputPrice" />
+                            <input disabled={!unlockInput} type="text" onChange={(e) => setPrice(e.target.value)} value={price} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputPrice" />
 
                             <button onClick={editButton} className="py-2 font-bold text-lg text-white border border-slate-400 shadow-md hover:shadow-lg rounded-lg bg-teal-600">{textEditButton}</button>
                         </div>
