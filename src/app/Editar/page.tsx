@@ -84,21 +84,24 @@ export default function Editar() {
     const onChangeRadio = (id: string) => {
         setVehicle(id)
     }
+    const LiOnclick = (id: string) => {
+        setVehicle(id);
+    };
 
-    const fetchBrand = async () => {
+    async function Post(obj: IPost) {
         try {
-            const res = await FipeApi.get(`${vehicle}/marcas`)
-            setBrand(res.data)
+            const res = await CrudApi.post('/vehicle', obj)
+            console.log(res);
         }
         catch (err) {
             console.log(err);
         }
     }
 
-    async function Post(obj: IPost) {
+    const fetchBrand = async () => {
         try {
-            const res = await CrudApi.post('/vehicle', obj)
-            console.log(res);
+            const res = await FipeApi.get(`${vehicle}/marcas`)
+            setBrand(res.data)
         }
         catch (err) {
             console.log(err);
@@ -164,7 +167,7 @@ export default function Editar() {
 
     useEffect(() => {
         if (vehicle !== "") {
-            fetch()
+            //fetch()
             fetchBrand()
         }
     }, [vehicle])
@@ -177,22 +180,40 @@ export default function Editar() {
                     <div className="flex justify-around gap-8 bg-white p-8 rounded-lg">
                         <ul className="flex flex-row gap-x-9 bg-whiterounded-lg">
 
-                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2">
-                                <input disabled={!unlockInput} type="radio" name="radioVehicle" id="carros" onChange={(e) => onChangeRadio("carros")} />
+                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"  
+                                onClick={() => {
+                                    if (unlockInput){
+                                        LiOnclick("carros")
+                                    }
+                                }
+                            }>
+                                <input disabled={!unlockInput} type="radio" name="radioVehicle" id="carros" onChange={(e) => onChangeRadio("carros")}checked={vehicle === 'carros'}/>
                                 <label htmlFor="radio-car" className="shadow-md hover:shadow-lg">
                                     <img src="/images/iconCar.png" className="w-8 md:w-16 lg:w-32" alt="" />
                                 </label>
                             </li>
 
-                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2">
-                                <input disabled={!unlockInput} type="radio" name="radioVehicle" id="motos" onChange={(e) => onChangeRadio("motos")} />
+                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"  
+                                onClick={() => {
+                                    if (unlockInput){
+                                        LiOnclick("motos")
+                                    }
+                                }
+                            }>
+                                <input disabled={!unlockInput} type="radio" name="radioVehicle" id="motos" onChange={(e) => onChangeRadio("motos")}checked={vehicle === 'motos'}/>
                                 <label htmlFor="radio-motorcycle" className="shadow-md hover:shadow-lg">
                                     <img src="/images/iconMotorcycle.png" className="w-8 md:w-16 lg:w-32" alt="" />
                                 </label>
                             </li>
 
-                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2">
-                                <input disabled={!unlockInput} type="radio" name="radioVehicle" id="caminhoes" onChange={(e) => onChangeRadio("caminhoes")} />
+                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"  
+                                onClick={() => {
+                                    if (unlockInput){
+                                        LiOnclick("caminhoes")
+                                    }
+                                }
+                            }>
+                                <input disabled={!unlockInput} type="radio" name="radioVehicle" id="caminhoes" onChange={(e) => onChangeRadio("caminhoes")}checked={vehicle === 'caminhoes'}/>
                                 <label htmlFor="radio-truck" className="shadow-md hover:shadow-lg">
                                     <img src="/images/iconTruck.png" className="w-8 md:w-16 lg:w-32" alt="" />
                                 </label>

@@ -12,19 +12,15 @@ export default function Consultar() {
     const [models, setModels] = useState<any[]>([])
     const [year, setYear] = useState<any[]>([])
     const [codBrand, setCodBrand] = useState<string>()
-    const [codModel, setCodModel] = useState<number>()
+    const [codModel, setCodModel] = useState<number>(0)
+    const [codYear, setCodYear] = useState<string>("")
     const [vehicle, setVehicle] = useState<string>("")
 
     const [fuel, setFuel] = useState<string>("")
     const [codRef, setCodRef] = useState<string>("")
     const [codFipe, setcodFipe] = useState<string>("")
-    const [FipePrice, setFipePrice] = useState<any[]>([])
+    const [FipePrice, setFipePrice] = useState<string>("")
 
-    
-
-    const onChangeRadio = (id:string)=>{
-        setVehicle(id)
-    }
 
     const fetchBrand = async () => {
         try {
@@ -36,37 +32,98 @@ export default function Consultar() {
         }
     }
 
+    const onChangeRadio = (id:string)=>{
+        setVehicle(id)
+    }
+    const LiOnclick = (id: string) => {
+        setVehicle(id);
+    };
 
+    //Mudança do campo Marca
     const onChangeBrand = async (codigo: any) => {
+        //limpa os campos
+        setFuel("")
+        setCodRef("")
+        setcodFipe("")
+        setFipePrice("")
+        setModels(["Selecione uma Opção"])
+        setYear(["Selecione uma Opção"])
+        
+        
         try {
-            const res = await FipeApi.get(`${vehicle}/marcas/${codigo}/modelos`)
-            setModels(res.data.modelos)
-            setCodBrand(codigo)
+            //verifica se Marca está vazia (Evita requisição vazia)
+            if (!codigo.includes("Selecione uma Opção")){
+                console.log("não está vazio")
+                
+                //requisição
+                const res = await FipeApi.get(`${vehicle}/marcas/${codigo}/modelos`)
+                setModels(res.data.modelos)
+                setCodBrand(codigo)
+            }
+            else{
+                //evitou a requisição vazia
+                //setou Modelo e Ano em 0
+                setModels([0])
+                setYear([0])
+            }
         }
         catch (err) {
             console.log(err);
         }
     }
 
+    //Mudança do campo Modelo
     const onChangeModel = async (codigo: any) => {
+        //limpa os campos
+        setFuel("")
+        setCodRef("")
+        setcodFipe("")
+        setFipePrice("")
+        setYear(["Selecione uma Opção"])
+        
         try{
-            const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codigo}/anos`)
-            setYear(res.data)
-            setCodModel(codigo)
+            //verifica se Modelo está vazio (Evita requisição vazia)
+            if (!codigo.includes("Selecione uma Opção")){
+                console.log("não está vazio")
+    
+                //requisição
+                const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codigo}/anos`)
+                setCodModel(codigo)
+                setYear(res.data)
+            }
+            else{
+                //evitou a requisição vazia
+                //setou Ano em 0
+                setYear(["Selecione uma Opção"])
+            }
         }
         catch(err){
             console.log(err);
         }
     }
 
+    //Mudança do campo Ano
     const onChangeYear = async (codigo: any)  =>{
+        //limpa os campos
+        setFuel("")
+        setCodRef("")
+        setcodFipe("")
+        setFipePrice("")
         try{
-            const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codModel}/anos/${codigo}`)
-            console.log(res.data)
-            setFuel(res.data.Combustivel)
-            setCodRef(res.data.MesReferencia)
-            setFipePrice(res.data.Valor)
-            setcodFipe(res.data.CodigoFipe)
+            //verifica se Ano está vazio (Evita requisição vazia)
+            if (!codigo.includes("Selecione uma Opção")){
+                console.log("não está vazio")
+               
+                //requisição
+                const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codModel}/anos/${codigo}`)
+
+                console.log(res.data)
+                setFuel(res.data.Combustivel)
+                setCodRef(res.data.MesReferencia)
+                setFipePrice(res.data.Valor)
+                setcodFipe(res.data.CodigoFipe)
+                setCodYear(codigo)
+            }
 
         }
         catch(err){
@@ -85,24 +142,23 @@ export default function Consultar() {
             <Navbar/>
             <div className="flex flex-col bg-white p-8 rounded-lg">
                 <div className="flex justify-around gap-8 bg-white p-8 rounded-lg">
-                    <ul className="flex flex-row gap-x-9 bg-whiterounded-lg">
-                        
-                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2">
-                            <input type="radio" name="radioVehicle" id="carros" onChange={(e)=>onChangeRadio("carros")}/>
+                    <ul className="flex flex-row gap-x-9 bg-white rounded-lg">
+                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2" onClick={() => LiOnclick('carros')}>
+                            <input type="radio" name="radioVehicle" id="carros" onChange={(e)=>onChangeRadio("carros")} checked={vehicle === 'carros'}/>
                             <label htmlFor="radio-car" className="shadow-md hover:shadow-lg">
                                 <img src="../images/iconCar.png" className="w-8 md:w-16 lg:w-32" alt="" />
                             </label>
                         </li>
 
-                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2">
-                            <input type="radio" name="radioVehicle" id="motos" onChange={(e)=>onChangeRadio("motos")}/>
+                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2" onClick={() => LiOnclick('motos')}>
+                            <input type="radio" name="radioVehicle" id="motos" onChange={(e)=>onChangeRadio("motos")} checked={vehicle === 'motos'}/>
                             <label htmlFor="radio-motorcycle" className="shadow-md hover:shadow-lg">
                                 <img src="../images/iconMotorcycle.png" className="w-8 md:w-16 lg:w-32" alt="" />
                             </label>
                         </li>
 
-                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2">
-                            <input type="radio" name="radioVehicle" id="caminhoes" onChange={(e)=>onChangeRadio("caminhoes")}/>
+                        <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2" onClick={() => LiOnclick('caminhoes')}>
+                            <input type="radio" name="radioVehicle" id="caminhoes" onChange={(e)=>onChangeRadio("caminhoes")} checked={vehicle === 'caminhoes'}/>
                             <label htmlFor="radio-truck" className="shadow-md hover:shadow-lg">
                                 <img src="../images/iconTruck.png" className="w-8 md:w-16 lg:w-32" alt="" />
                             </label>
@@ -130,7 +186,7 @@ export default function Consultar() {
                     <div className="flex flex-col gap-2 bg-white">
                         <div className="flex flex-col gap-2 bg-white pb-6 rounded-lg ">
                             <label htmlFor="selectModelo">Modelo</label>
-                            <select id="selectModelo" onChange={(e) => onChangeModel(e.target.value)} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg">
+                            <select id="selectModelo" onChange={(e) => onChangeModel(e.target.value)}  className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg">
                                 <option>Selecione uma Opção</option>
                                 {
                                     models.map((b, i) => (
