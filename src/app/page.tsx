@@ -16,7 +16,7 @@ export default function Catalogo() {
   const fetchVehicle = async () => {
     try {
         const res = await CrudApi.get(`vehicle`)
-        console.log(res.data);
+        console.log(""+res.data);
         setVehicles(res.data)   
     }
     catch (err) {
