@@ -4,7 +4,7 @@ interface cardProps{
     data: {
         model: number
         vehicle_type: Vehicle
-        brand: number
+        brand: string
         year: string
         value: string
         price: number

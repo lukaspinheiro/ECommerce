@@ -17,10 +17,9 @@ const Navbar = () => {
                 <li className="text-white">
                     <Link
                         href={{
-                            pathname: '/Consultar',
-                            query: { statusPage: 0 },                   
+                            pathname: '/Consultar'                 
                         }}
-                    >Cadastrar Veículo</Link>
+                    >Consultar Veículo</Link>
                 </li>
             </ul>
 
