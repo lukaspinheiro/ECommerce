@@ -12,14 +12,12 @@ interface cardProps{
         id_model: number
         id_brand: number
     }
-    setUrl: (vehicle_type: Vehicle, idBrand: number, idModel: number, year: string) => void
 }
 
-export const Card = ({ data, setUrl }: cardProps) => {
+export const Card = ({ data }: cardProps) => {
     const router = useRouter()
 
     function navigate() {
-        setUrl(data.vehicle_type, data.id_brand, data.id_model, data.year)
         router.push(`Editar/${data.id}`)
     }
     return (

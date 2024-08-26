@@ -61,7 +61,6 @@ export default function Consultar() {
         try {
             //verifica se Marca está vazia (Evita requisição vazia)
             if (!codigo.includes("Selecione uma Opção")){
-                console.log("não está vazio")
                 
                 //requisição
                 const res = await FipeApi.get(`${vehicle}/marcas/${codigo}/modelos`)
@@ -88,9 +87,7 @@ export default function Consultar() {
         
         try{
             //verifica se Modelo está vazio (Evita requisição vazia)
-            if (!codigo.includes("Selecione uma Opção")){
-                console.log("não está vazio")
-    
+            if (!codigo.includes("Selecione uma Opção")){    
                 //requisição
                 const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codigo}/anos`)
                 setCodModel(codigo)
@@ -113,13 +110,9 @@ export default function Consultar() {
         clearInputs()
         try{
             //verifica se Ano está vazio (Evita requisição vazia)
-            if (!codigo.includes("Selecione uma Opção")){
-                console.log("não está vazio")
-               
+            if (!codigo.includes("Selecione uma Opção")){               
                 //requisição
                 const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codModel}/anos/${codigo}`)
-
-                console.log(res.data)
                 setFuel(res.data.Combustivel)
                 setCodRef(res.data.MesReferencia)
                 setFipePrice(res.data.Valor)
@@ -224,7 +217,6 @@ export default function Consultar() {
                         </div>
                         <label htmlFor="inputValor">Valor FIPE - R$</label>
                         <input type="text" disabled value={FipePrice} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-4" id="inputCombustivel" />
-                        <button onClick={fetchBrand} className="py-2 mt-4 font-bold text-lg text-white border border-slate-400 shadow-md hover:shadow-lg rounded-lg bg-teal-600">Cadastrar</button>
                     </div>
                 </div>
             </div>

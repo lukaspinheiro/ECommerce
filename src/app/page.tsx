@@ -4,19 +4,15 @@ import { Card } from "@/components/Card";
 import { CrudApi } from "@/api/CrudApi"
 import { useContext, useEffect, useRef, useState } from "react"
 import Navbar from "@/components/Navbar";
-import { VehicleContext } from "@/context/VehicleContext";
 
 
 export default function Catalogo() {
 
   const [ vehicles, setVehicles ]= useState([])
-  const {setUrl} = useContext(VehicleContext)
 
   const fetchVehicle = async () => {
     try {
-      console.log("Entrou no fetchVehicle linha 18")
       const res = await CrudApi.get(`vehicle`)
-      console.log(""+res.data);
       setVehicles(res.data)   
     }
     catch (err) {
@@ -35,7 +31,7 @@ export default function Catalogo() {
       <div className="grid grid-cols-3 justify-items-center p-8  pl-28 pr-28 gap-3 gap-y-10">
         {
           vehicles.map((v: any, i)=> (
-            <Card key={`card-veiculos-${i}`} data={v} setUrl={setUrl}/>
+            <Card key={`card-veiculos-${i}`} data={v}/>
           ))
         }
       </div>

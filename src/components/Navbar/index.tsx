@@ -25,7 +25,7 @@ const Navbar = () => {
                 <li className="text-white">
                     <Link
                         href={{
-                            pathname: '/Editar'                 
+                            pathname: '/Criar'                 
                         }}
                     >Cadastrar Veículo</Link>
                 </li>

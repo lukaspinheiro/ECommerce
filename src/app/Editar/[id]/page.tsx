@@ -3,28 +3,10 @@
 import { CrudApi } from "@/api/CrudApi"
 import { FipeApi } from "@/api/FipeApi"
 import Navbar from "@/components/Navbar"
-import { VehicleContext } from "@/context/VehicleContext"
-import { useParams, usePathname } from "next/navigation"
-import { useContext, useEffect, useState } from "react"
-import { useRouter } from 'next/router';
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
-
-
-interface IPost {
-    vehicle_type: string
-    id_model: string
-    model: string
-    id_brand: string
-    brand: string
-    year: string
-    price: string
-    notes: string
-    km: string
-    color: string
-}
-
-interface IVehicle {
-    id: number
+interface IPut {
     vehicle_type: string
     id_model: number
     model: string
@@ -37,133 +19,185 @@ interface IVehicle {
     color: string
 }
 
-type Props={
-    params:{id: string}
+interface IVehicle {
+    id?: number
+    vehicle_type: string
+    id_model: number
+    model: string
+    id_brand: number
+    brand: string
+    year: string
+    price: number
+    notes: string
+    km: number
+    color: string
 }
 
-export default function Editar({params}:Props) {
-    const { data: _data } = useContext(VehicleContext)
+type Props = {
+    params: { id: string }
+}
 
+export default function Editar({ params }: Props) {
+    const router = useRouter()
+    const idVehiclie = params.id
 
     const [brand, setBrand] = useState<any[]>([])
     const [models, setModels] = useState<any[]>([])
     const [year, setYear] = useState<any[]>([])
-    const [codBrand, setCodBrand] = useState<string>()
-    const [codModel, setCodModel] = useState<string>()
-    const [codYear, setCodYear] = useState<string>()
-    const [vehicle, setVehicle] = useState<string>("")
 
     const [fuel, setFuel] = useState<string>("")
     const [codRef, setCodRef] = useState<string>("")
     const [codFipe, setcodFipe] = useState<string>("")
-    const [color, setColor] = useState<string>("")
-    const [km, setKm] = useState<string>("")
     const [FipePrice, setFipePrice] = useState<string>("")
-    const [price, setPrice] = useState<string>("")
-    const [notes, setNotes] = useState<string>("")
-    
-    const [vehicleBD, setVehicleBD] = useState<IVehicle>()
 
+    const [newVehicle, setNewVehicle] = useState<IVehicle>({
+        vehicle_type: '',
+        id_model: 0,
+        model: '',
+        id_brand: 0,
+        brand: '',
+        year: '',
+        price: 0,
+        notes: '',
+        km: 0,
+        color: '',
+    })
 
+    const [vehicleBD, setVehicleBD] = useState<IVehicle>({
+        vehicle_type: '',
+        id_model: 0,
+        model: '',
+        id_brand: 0,
+        brand: '',
+        year: '',
+        price: 0,
+        notes: '',
+        km: 0,
+        color: '',
+    })
 
     //const { statusPage } = router.push();
     const [statusEditButton, setStatusEditButton] = useState<number>(0);
-    const [deleteButtonVisible, setDeleteButtonVisible] = useState(false);
-    const [unlockInput, setUnlockInput] = useState(false);
-    const [textEditButton, setTextEditButton] = useState("Editar");
-    console.log(params.id)
 
-    //troca entre Editar e Cadastro
-    const editButton = async() => {
-        if (statusEditButton == 1) {
-            const obj: IPost = {
-                vehicle_type: vehicle,
-                id_model: codModel!,
-                model: models.find(m => m.codigo === codModel),
-                id_brand: codBrand!,
-                brand: brand.find(m => m.codigo === codBrand),
-                year: year.find(m => m.codigo === codYear),
-                price: price!,
-                notes: notes,
-                km: km!,
-                color: color
-            }
-            console.log("esses são os modelos "+models)
-            console.log(obj)
-            await Post(obj)
-            console.log(statusEditButton)
-    
-            return
-        }
-        if (statusEditButton == 0) {
-            setDeleteButtonVisible(true)
-            setUnlockInput(true)
-            setTextEditButton("Salvar")
-            setStatusEditButton(1)
-            console.log(statusEditButton)
-            return
-        }
-        console.log("ESSE É O CODMODEL: "+codModel)
-    }
-
-    //Limpa os Inputs
-    function clearInputs(){
+    function clearInputs() {
         setFuel("")
         setCodRef("")
         setcodFipe("")
         setFipePrice("")
-        setNotes("")
-        setKm("")
-        setColor("")
-        setPrice("")
     }
 
-    //Mudança dos RadioButtons
-    const onChangeRadio = (id:string)=>{
-        setVehicle(id)
-        clearInputs()
-        setBrand(["Selecione uma Opção"])
-        setModels(["Selecione uma Opção"])
-        setYear(["Selecione uma Opção"])
-        clearInputs()
-    }
-
-    async function Post(obj: IPost) {
+    async function deleteVehicle() {
         try {
-            console.log("Entrou aquiiiiii!!!!!!!!!")
-            const res = await CrudApi.post('vehicle', obj)
-            
+            CrudApi.delete(`/vehicle/${idVehiclie}`)
+            alert('Veiculo apagado com sucesso')
+            router.replace('/')
+        }
+        catch (err) {
+            console.log(err);
+            alert('Falha ao apagar veiculo')
+        }
+    }
+
+    //troca entre Editar e Cadastro
+    const editButton = async () => {
+        if (statusEditButton == 1) {
+            if (
+                !newVehicle.price ||
+                !newVehicle.notes ||
+                !newVehicle.km ||
+                !newVehicle.color ||
+                !newVehicle.id_brand ||
+                !newVehicle.id_model ||
+                !newVehicle.year
+            ) {
+                alert("Preencha todos os campos")
+                return
+            }
+            try {
+                const res = await CrudApi.put(`/vehicle/${idVehiclie}`, newVehicle)
+                console.log(res);
+                alert('Veiculo atualizado com sucesso!')
+                setStatusEditButton(0)
+            } catch (err) {
+                alert('Erro ao salvar alterações')
+                console.log(err);
+
+            }
+            return
+        }
+        if (statusEditButton == 0) {
+            setNewVehicle(vehicleBD)
+            setStatusEditButton(1)
+            return
+        }
+    }
+
+    async function back() {
+        if (statusEditButton == 0) {
+            router.back()
+        }
+        if (statusEditButton == 1) {
+            const res = await FipeApi.get(`${vehicleBD.vehicle_type}/marcas/${vehicleBD.id_brand}/modelos/${vehicleBD.id_model}/anos/${vehicleBD.year}`)
+            setFuel(res.data.Combustivel)
+            setCodRef(res.data.MesReferencia)
+            setFipePrice(res.data.Valor)
+            setcodFipe(res.data.CodigoFipe)
+            setStatusEditButton(0)
+        }
+    }
+
+    const onChangeRadio = async (type: string) => {
+        clearInputs()      
+
+        if (!type) return
+
+        try {
+            setNewVehicle(obj => ({
+                ...obj,
+                vehicle_type: type,
+                id_model: 0,
+                model: '',
+                id_brand: 0,
+                brand: '',
+                year: ''
+            }))
+            const res = await FipeApi.get(`${type}/marcas`)
+            setBrand(res.data)
+
+            setModels([])
+            setYear([])
         }
         catch (err) {
             console.log(err);
         }
     }
 
-    //Mudança do campo Marca
     const onChangeBrand = async (codigo: any) => {
-        console.log("CODIGOO"+codigo)
-        //limpa os campos
+        //limpa os campos        
         clearInputs()
-        setModels(["Selecione uma Opção"])
-        setYear(["Selecione uma Opção"])
-        
-        
+        setYear([])
+
+        //verifica se Marca está vazia (Evita requisição vazia)
+        if (!codigo.length) {
+            //evitou a requisição vazia
+            //setou Modelo e Ano em 0
+            setModels([])
+            setYear([])
+            return
+        }
         try {
-            //verifica se Marca está vazia (Evita requisição vazia)
-            if (!codigo?.includes("Selecione uma Opção")){
-                console.log("não está vazio")
-                
-                //requisição
-                const res = await FipeApi.get(`${vehicle}/marcas/${codigo}/modelos`)
-                setModels(res.data.modelos)
-                setCodBrand(codigo)
-            }
-            else{
-                //evitou a requisição vazia
-                //setou Modelo e Ano em 0
-                setModels([0])
-                setYear([0])
-            }
+            const aux = JSON.parse(codigo)
+            setNewVehicle(obj => ({
+                ...obj,
+                id_brand: aux.codigo,
+                brand: aux.name,
+                id_model: 0,
+                model: '',
+                year: ''
+            }))
+            //requisição
+            const res = await FipeApi.get(`${newVehicle.vehicle_type}/marcas/${aux.codigo}/modelos`)
+            setModels(res.data.modelos)
         }
         catch (err) {
             console.log(err);
@@ -172,156 +206,85 @@ export default function Editar({params}:Props) {
 
     //Mudança do campo Modelo
     const onChangeModel = async (codigo: any) => {
-        //limpa os campos
+        //limpa os campos        
         clearInputs()
-        setYear(["Selecione uma Opção"])
-        
-        try{
+        //evitou a requisição vazia
+        if (!codigo.length) {
             //verifica se Modelo está vazio (Evita requisição vazia)
-            if (!codigo.includes("Selecione uma Opção")){
-                console.log("não está vazio")
-    
-                //requisição
-                const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codigo}/anos`)
-                setCodModel(codigo)
-                setYear(res.data)
-            }
-            else{
-                //evitou a requisição vazia
-                //setou Ano em 0
-                setYear(["Selecione uma Opção"])
-            }
+            //setou Ano em 0
+            return
         }
-        catch(err){
+        try {
+            setNewVehicle(obj => ({
+                ...obj,
+                id_model: aux.codigo,
+                model: aux.name,
+                year: ''
+            }))
+            const aux = JSON.parse(codigo)
+            //requisição
+            const res = await FipeApi.get(`${newVehicle.vehicle_type}/marcas/${newVehicle.id_brand}/modelos/${aux.codigo}/anos`)
+            setYear(res.data)
+        }
+        catch (err) {
             console.log(err);
         }
     }
 
     //Mudança do campo Ano
-    const onChangeYear = async (codigo: any)  =>{
-        //limpa os campos
-        clearInputs
-        try{
-            //verifica se Ano está vazio (Evita requisição vazia)
-            if (!codigo.includes("Selecione uma Opção")){
-                console.log("não está vazio")
-               
-                //requisição
-                const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${codModel}/anos/${codigo}`)
-
-                console.log(res.data)
-                setFuel(res.data.Combustivel)
-                setCodRef(res.data.MesReferencia)
-                setFipePrice(res.data.Valor)
-                setcodFipe(res.data.CodigoFipe)
-                setCodYear(codigo)
-            }
-
+    const onChangeYear = async (codigo: string) => {
+        //limpa os campos        
+        clearInputs()
+        //verifica se Ano está vazio (Evita requisição vazia)
+        if (!codigo.length) return
+        try {
+            setNewVehicle(obj => ({ ...obj, year: codigo }))
+            //requisição
+            const res = await FipeApi.get(`${newVehicle.vehicle_type}/marcas/${newVehicle.id_brand}/modelos/${newVehicle.id_model}/anos/${codigo}`)
+            setFuel(res.data.Combustivel)
+            setCodRef(res.data.MesReferencia)
+            setFipePrice(res.data.Valor)
+            setcodFipe(res.data.CodigoFipe)
         }
-        catch(err){
+        catch (err) {
             console.log(err);
         }
-    }  
+    }
+
+    async function resetForm() {
+        try {
+            const res = await CrudApi.get(`/vehicle/${idVehiclie}`)
+            setNewVehicle(res.data)
+            setVehicleBD(res.data)
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
 
     useEffect(() => {
-        const fetch = async () => {
-            // AQUIIIIIIIIIIII
-            try {
-                const result = await CrudApi.get(`vehicle/${params.id}`)
-                console.log(result)
-    
-                setVehicleBD(result.data)
-                setVehicle(result.data.vehicle_type === 'carros' ? "carros" : result.data.vehicle_type === 'motos' ? "motos" : "caminhoes")
-                setCodBrand(result.data.id_brand)
-                setNotes(result.data.notes)
-                setKm(result.data.km)
-                setColor(result.data.color)
-                setPrice(result.data.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
-                // setBrand(result.data)
-            }
-            catch (err) {
-                console.log(err);
-            }
-        }
-        fetch()
-    }, [params.id]);
+        resetForm()
+    }, [])
 
     useEffect(() => {
-        const fetchBrand = async () => {
-            try {
-                const res = await FipeApi.get(`${vehicle}/marcas`)
-                setBrand(res.data)
-                if (vehicleBD){
-                    const validOption = brand.find((option:any) => option.codigo == vehicleBD.id_brand)
-                    if(validOption){
-                        setCodBrand(validOption.codigo)
-                    }
-                }
-            }
-            catch (err) {
-                console.log(err);
-            }
-        }
-        if(vehicleBD){
-            fetchBrand()
-        }
-    }, [vehicleBD]) 
+        if (!vehicleBD || statusEditButton === 1) return
+        onChangeRadio(vehicleBD.vehicle_type)
+    }, [vehicleBD!.vehicle_type])
 
     useEffect(() => {
-        const fetchModels = async () => {
-            try {
-                if(brand){
-                    const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos`)
-                    setModels(res.data.modelos)
-                    console.dir(res.data.modelos)
-                    if (vehicleBD){
-                        const validOption = models.find((option:any) => option.codigo == vehicleBD.id_model)
-                        if(validOption){
-                            setCodModel(validOption.codigo)
-                        }
-                    }
-                }
-            }
-            catch (err) {
-                console.log(err);
-            }
-        }
-        if(vehicleBD){
-            fetchModels()
-        }
-    }, [brand, vehicleBD]) 
+        if (!vehicleBD || statusEditButton === 1) return
+        onChangeBrand({ codigo: vehicleBD.id_brand, name: vehicleBD.brand })
+    }, [vehicleBD!.id_brand])
 
     useEffect(() => {
-        const fetchYears = async () => {
-            try {
-                if(models){
-                    const res = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${vehicleBD?.id_model}/anos`)
-                    setYear(res.data)
-                    console.dir("YEAR"+year)
-                    if (vehicleBD){
-                        const validOption = year.find((option:any) => option.codigo === vehicleBD.year)
-                        if(validOption){
-                            setCodYear(validOption.codigo)
-                            
+        if (!vehicleBD || statusEditButton === 1) return
+        onChangeModel({ codigo: vehicleBD.id_model, name: vehicleBD.model })
+    }, [vehicleBD!.id_model])
 
-                            const res2 = await FipeApi.get(`${vehicle}/marcas/${codBrand}/modelos/${vehicleBD?.id_model}/anos/${vehicleBD.year}`)
-                            console.log(res.data)
-                            setFuel(res2.data.Combustivel)
-                            setCodRef(res2.data.MesReferencia)
-                            setFipePrice(res2.data.Valor)
-                            setcodFipe(res2.data.CodigoFipe)
-                        }
-                    }
-                }
-            }
-            catch (err) {
-                console.log(err);
-            }
-        }
-        if(vehicleBD){
-            fetchYears()
-        }
-    }, [models, vehicleBD]) 
+    useEffect(() => {
+        if (!vehicleBD || statusEditButton === 1) return
+        onChangeYear(vehicleBD.year)
+    }, [vehicleBD!.year])
 
     return (
         <>
@@ -331,40 +294,40 @@ export default function Editar({params}:Props) {
                     <div className="flex justify-around gap-8 bg-white p-8 rounded-lg">
                         <ul className="flex flex-row gap-x-9 bg-whiterounded-lg">
 
-                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"  
+                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"
                                 onClick={() => {
-                                    if (unlockInput){
+                                    if (statusEditButton === 1) {
                                         onChangeRadio("carros")
                                     }
                                 }
-                            }>
-                                <input disabled={!unlockInput} type="radio" name="radioVehicle" id="carros" onChange={(e) => onChangeRadio("carros")}checked={vehicle === 'carros'}/>
+                                }>
+                                <input disabled={statusEditButton !== 1} type="radio" name="radioVehicle" id="carros" onChange={() => { }} checked={newVehicle.vehicle_type === 'carros'} />
                                 <label htmlFor="radio-car" className="shadow-md hover:shadow-lg">
                                     <img src="/images/iconCar.png" className="w-8 md:w-16 lg:w-32" alt="" />
                                 </label>
                             </li>
 
-                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"  
+                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"
                                 onClick={() => {
-                                    if (unlockInput){
+                                    if (statusEditButton === 1) {
                                         onChangeRadio("motos")
                                     }
                                 }
-                            }>
-                                <input disabled={!unlockInput} type="radio" name="radioVehicle" id="motos" onChange={(e) => onChangeRadio("motos")}checked={vehicle === 'motos'}/>
+                                }>
+                                <input disabled={statusEditButton !== 1} type="radio" name="radioVehicle" id="motos" onChange={() => { }} checked={newVehicle.vehicle_type === 'motos'} />
                                 <label htmlFor="radio-motorcycle" className="shadow-md hover:shadow-lg">
                                     <img src="/images/iconMotorcycle.png" className="w-8 md:w-16 lg:w-32" alt="" />
                                 </label>
                             </li>
 
-                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"  
+                            <li className="shadow-md border border-slate-400 rounded-lg grid justify-items-center pt-2"
                                 onClick={() => {
-                                    if (unlockInput){
+                                    if (statusEditButton === 1) {
                                         onChangeRadio("caminhoes")
                                     }
                                 }
-                            }>
-                                <input disabled={!unlockInput} type="radio" name="radioVehicle" id="caminhoes" onChange={(e) => onChangeRadio("caminhoes")}checked={vehicle === 'caminhoes'}/>
+                                }>
+                                <input disabled={statusEditButton !== 1} type="radio" name="radioVehicle" id="caminhoes" onChange={() => { }} checked={newVehicle.vehicle_type === 'caminhoes'} />
                                 <label htmlFor="radio-truck" className="shadow-md hover:shadow-lg">
                                     <img src="/images/iconTruck.png" className="w-8 md:w-16 lg:w-32" alt="" />
                                 </label>
@@ -376,35 +339,45 @@ export default function Editar({params}:Props) {
                         <div className="flex flex-col gap-2 bg-white pl-8">
                             <div className="flex flex-col gap-2 bg-white pb-6 rounded-lg">
                                 <label htmlFor="selectMarca">Marca</label>
-                                <select disabled={!unlockInput} id="selectMarca" value={codBrand} onChange={(e) => onChangeBrand(e.target.value)} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg">
-                                    <option>Selecione uma Opção</option>
-                                    {
-                                        brand.map((b, i) => (
-                                            <option key={i} value={b.codigo}>{b.nome}</option>
-                                        ))
-                                    }
-                                </select>
+                                {
+                                    statusEditButton === 0 ?
+                                        <input type="text" value={vehicleBD?.brand} disabled className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg" /> :
+                                        <select disabled={statusEditButton !== 1} id="selectMarca" value={newVehicle?.brand} onChange={(e) => onChangeBrand(e.target.value)} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg">
+                                            <option>{newVehicle.brand}</option>
+                                            {
+                                                brand.map((b, i) => (
+                                                    <option key={i} value={JSON.stringify(b)}>{b.nome}</option>
+                                                ))
+                                            }
+                                        </select>
+
+                                }
                             </div>
                             <label htmlFor="inputFuel">Combustível</label>
                             <input type="text" disabled value={fuel} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputFuel" />
 
                             <label htmlFor="inputComments">Observações</label>
-                            <input type="text" disabled={!unlockInput} onChange={(e) => setNotes(e.target.value)} value={notes} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputComments" />
+                            <input type="text" disabled={statusEditButton !== 1} onChange={(e) => setNewVehicle(obj => ({ ...obj, notes: e.target.value }))} value={newVehicle.notes} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputComments" />
 
-                            <button hidden={!deleteButtonVisible} className="p-2 font-bold text-lg text-white hover:shadow-lg shadow-md hover:shadow-lg rounded-lg border border-red-600 bg-red-600">Excluir</button>
+                            <button hidden={statusEditButton === 0} onClick={deleteVehicle} className="p-2 font-bold text-lg text-white hover:shadow-lg shadow-md hover:shadow-lg rounded-lg border border-red-600 bg-red-600">Excluir</button>
                         </div>
 
                         <div className="flex flex-col gap-2 bg-white">
                             <div className="flex flex-col gap-2 bg-white pb-6 rounded-lg ">
                                 <label htmlFor="selectModelo">Modelo</label>
-                                <select disabled={!unlockInput} id="selectModelo" onChange={(e) => onChangeModel(e.target.value)} value={codModel} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg">
-                                    <option>Selecione uma Opção</option>
-                                    {
-                                        models.map((b, i) => (
-                                            <option key={i} value={b.codigo}>{b.nome}</option>
-                                        ))
-                                    }
-                                </select>
+                                {
+                                    statusEditButton === 0 ?
+                                        <input type="text" disabled value={vehicleBD.model} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg" /> :
+                                        <select disabled={statusEditButton !== 1} id="selectModelo" onChange={(e) => onChangeModel(e.target.value)} value={newVehicle.model} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg">
+                                            <option>{newVehicle.model}</option>
+                                            {
+                                                models.map((b, i) => (
+                                                    <option key={i} value={JSON.stringify(b)}>{b.nome}</option>
+                                                ))
+                                            }
+                                        </select>
+
+                                }
                             </div>
                             <div className="flex flex-row gap-8 bg-white pb-6 rounded-lg">
                                 <div className="flex flex-col gap-2 bg-white">
@@ -412,7 +385,7 @@ export default function Editar({params}:Props) {
                                     <input type="text" disabled value={codRef} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputFipeRef" />
 
                                     <label htmlFor="inputKm">Quilometragem</label>
-                                    <input disabled={!unlockInput} type="text" onChange={(e) => setKm(e.target.value)} value={km} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg" id="inputKm" />
+                                    <input disabled={statusEditButton !== 1} type="number" onChange={(e) => setNewVehicle(obj => ({ ...obj, km: Number(e.target.value) }))} value={newVehicle.km} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg" id="inputKm" />
                                 </div>
 
                                 <div className="flex flex-col gap-2 bg-white">
@@ -420,9 +393,9 @@ export default function Editar({params}:Props) {
                                     <input type="text" disabled value={codFipe} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputFipeCod" />
 
                                     <label htmlFor="inputColor">Cor</label>
-                                    <input disabled={!unlockInput} type="text" onChange={(e) => setColor(e.target.value)} value={color} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputColor" />
+                                    <input disabled={statusEditButton !== 1} type="text" onChange={(e) => setNewVehicle(obj => ({ ...obj, color: e.target.value }))} value={newVehicle.color} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputColor" />
 
-                                    <button className="py-2 font-bold text-lg text-neutral-600 hover:shadow-lg shadow-md hover:shadow-lg rounded-lg border border-neutral-600 bg-white">Voltar</button>
+                                    <button onClick={back} className="py-2 font-bold text-lg text-neutral-600 hover:shadow-lg shadow-md hover:shadow-lg rounded-lg border border-neutral-600 bg-white">{statusEditButton === 0 ? 'Voltar' : 'cancelar'}</button>
                                 </div>
                             </div>
                         </div>
@@ -431,22 +404,27 @@ export default function Editar({params}:Props) {
                         <div className="flex flex-col gap-2 bg-white pr-8 ">
                             <div className="flex flex-col gap-2 bg-white pb-6 rounded-lg">
                                 <label htmlFor="selectAno">Ano</label>
-                                <select disabled={!unlockInput} name="" id="selectAno" onChange={(e) => onChangeYear(e.target.value)} value={codYear} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg">
-                                    <option>Selecione uma Opção</option>
-                                    {
-                                        year.map((b, i) => (
-                                            <option key={i} value={b.codigo}>{b.nome}</option>
-                                        ))
-                                    }
-                                </select>
+                                {
+                                    statusEditButton === 0 ?
+                                        <input type="text" disabled className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg" value={vehicleBD.year} /> :
+                                        <select disabled={statusEditButton !== 1} name="" id="selectAno" onChange={(e) => onChangeYear(e.target.value)} value={newVehicle.year} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg">
+                                            <option>{newVehicle.year}</option>
+                                            {
+                                                year.map((b, i) => (
+                                                    <option key={i} value={b.codigo}>{b.nome}</option>
+                                                ))
+                                            }
+                                        </select>
+
+                                }
                             </div>
                             <label htmlFor="inputPriceFipe">Valor FIPE</label>
                             <input type="text" disabled value={FipePrice} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputPriceFipe" />
 
                             <label htmlFor="inputPrice">Valor de Venda</label>
-                            <input disabled={!unlockInput} type="text" onChange={(e) => setPrice(e.target.value)} value={price} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputPrice" />
+                            <input disabled={statusEditButton !== 1} type="number" onChange={(e) => setNewVehicle(obj => ({ ...obj, price: Number(e.target.value) }))} value={newVehicle.price} className="shadow-md hover:shadow-lg border border-slate-400 p-2 rounded-lg mb-6" id="inputPrice" />
 
-                            <button onClick={editButton} className="py-2 font-bold text-lg text-white border border-slate-400 shadow-md hover:shadow-lg rounded-lg bg-teal-600">{textEditButton}</button>
+                            <button onClick={editButton} className="py-2 font-bold text-lg text-white border border-slate-400 shadow-md hover:shadow-lg rounded-lg bg-teal-600">{statusEditButton === 0 ? 'Editar' : 'Salvar'}</button>
                         </div>
                     </div>
                 </div>
