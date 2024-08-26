@@ -38,6 +38,7 @@ export default function Consultar() {
         setcodFipe("")
         setFipePrice("")
     }
+    
 
     //Mudança dos RadioButtons
     const onChangeRadio = (id:string)=>{

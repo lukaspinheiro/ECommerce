@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation"
 
 interface cardProps{
     data: {
+        id: number
         model: number
         vehicle_type: Vehicle
         brand: string
@@ -19,7 +20,7 @@ export const Card = ({ data, setUrl }: cardProps) => {
 
     function navigate() {
         setUrl(data.vehicle_type, data.id_brand, data.id_model, data.year)
-        router.push(`Editar`)
+        router.push(`Editar/${data.id}`)
     }
     return (
         <div className="grid justify-items-center items-center lg:flex-row w-[80%] md:w-[80%] lg:w-[80%]  bg-white p-8 rounded shadow-xl">
